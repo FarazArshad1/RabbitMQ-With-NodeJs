@@ -5,8 +5,15 @@ async function sendMail() {
     try {
         const connection = await amqp.connect(process.env.AMQP_URL)
         const channel = await connection.createChannel()
+
+        // Create Exchange
         const exchange = process.env.EXCHANGE
-        const routingKey = process.env.ROUTING_KEY
+
+        // SubscribedUser Routing Key
+        const subscribedUserRoutingKey = process.env.SUBSCRIBED_USER_MAIL_ROUTING_KEY
+
+        // RegularUser Routing Key
+        const regularUserRoutingKey = process.env.REGULAR_USER_MAIL_ROUTING_KEY
 
         const message = {
             to: "faraz@gmail.com",
@@ -16,13 +23,19 @@ async function sendMail() {
         }
 
         await channel.assertExchange(exchange, "direct", { durable: true })
-        await channel.assertQueue("mail_queue_v2", { durable: true })
 
-        await channel.bindQueue("mail_queue_v2", exchange, routingKey)
+        await channel.assertQueue(process.env.SUBSCRIBED_USER_MAIL_QUEUE, { durable: true })
+        await channel.assertQueue(process.env.REGULAR_USER_MAIL_QUEUE, { durable: true })
 
-        channel.publish(exchange, routingKey, Buffer.from(JSON.stringify(message)))
+        await channel.bindQueue(process.env.SUBSCRIBED_USER_MAIL_QUEUE, exchange, subscribedUserRoutingKey)
+        await channel.bindQueue(process.env.REGULAR_USER_MAIL_QUEUE, exchange, regularUserRoutingKey)
 
-        console.log(`[x] Sent message to ${exchange} with routing key ${routingKey}`);
+        channel.publish(exchange, subscribedUserRoutingKey, Buffer.from(JSON.stringify(message)))
+        // channel.publish(exchange, regularUserRoutingKey, Buffer.from(JSON.stringify(message)))
+
+        console.log(`[x] Sent messages to ${exchange}`);
+        console.log(`    - Routing Key: ${subscribedUserRoutingKey}`);
+        console.log(`    - Routing Key: ${regularUserRoutingKey}`);
 
         setTimeout(() => {
             connection.close()

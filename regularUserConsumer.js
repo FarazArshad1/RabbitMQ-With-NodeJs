@@ -6,9 +6,9 @@ async function receiveMail() {
         const connection = await amqp.connect(process.env.AMQP_URL)
         const channel = await connection.createChannel();
 
-        await channel.assertQueue("mail_queue_v2", { durable: true })
+        await channel.assertQueue(process.env.REGULAR_USER_MAIL_QUEUE, { durable: true })
 
-        channel.consume("mail_queue_v2", (message) => {
+        channel.consume(process.env.REGULAR_USER_MAIL_QUEUE, (message) => {
             if (message != null) {
                 console.log("Received Message: ", JSON.parse(message.content.toString()));
                 channel.ack(message)
