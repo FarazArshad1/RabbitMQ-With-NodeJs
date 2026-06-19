@@ -1,0 +1,32 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      amqplib:
+        specifier: ^2.0.1
+        version: 2.0.1
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+
+packages:
+
+  amqplib@2.0.1:
+    resolution: {integrity: sha512-a3P2MgfCf9nzVis12VxWEn0dS6hcqve7dlEAhXDtIWR27BlhtMkILOc+H9aeHjDi6i6r94dYKc2Kx2OFe3avvg==}
+    engines: {node: '>=18'}
+
+  dotenv@17.4.2:
+    resolution: {integrity: sha512-nI4U3TottKAcAD9LLud4Cb7b2QztQMUEfHbvhTH09bqXTxnSie8WnjPALV/WMCrJZ6UV/qHJ6L03OqO3LcdYZw==}
+    engines: {node: '>=12'}
+
+snapshots:
+
+  amqplib@2.0.1: {}
+
+  dotenv@17.4.2: {}

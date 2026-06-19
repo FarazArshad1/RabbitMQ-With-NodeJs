@@ -1,0 +1,24 @@
+{
+  "name": "rabbitmq",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FarazArshad1/RabbitMQ-With-NodeJs.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FarazArshad1/RabbitMQ-With-NodeJs/issues"
+  },
+  "homepage": "https://github.com/FarazArshad1/RabbitMQ-With-NodeJs#readme",
+  "dependencies": {
+    "amqplib": "^2.0.1",
+    "dotenv": "^17.4.2"
+  }
+}
