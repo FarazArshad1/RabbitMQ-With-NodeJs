@@ -23,12 +23,23 @@ docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
 
 ### 2. Configure Environment Variables
 
-Create a `.env` file in the root directory (already included) with the following variables:
+Create a `.env` file in the root directory with the following variables:
 
 ```env
 AMQP_URL=amqp://localhost
+
+# Direct Exchange (Legacy)
 EXCHANGE=mail_exchange_v2
-ROUTING_KEY=send_mail
+SUBSCRIBED_USER_MAIL_QUEUE=subscribed_users_mail_queue
+REGULAR_USER_MAIL_QUEUE=regular_users_mail_queue
+
+# Topic Exchange
+TOPIC_EXCHANGE=topic_send_notification_v2
+TOPIC_SUBSCRIBED_USER_MAIL_ROUTING_KEY=order.*
+TOPIC_SUBSCRIBED_USER_MAIL_QUEUE=order_placed_notification_queue
+
+TOPIC_REGULAR_USER_MAIL_ROUTING_KEY=payment.*
+TOPIC_REGULAR_USER_MAIL_QUEUE=payment_processed_notification_queue
 ```
 
 ### 3. Install Dependencies
@@ -39,26 +50,46 @@ pnpm install
 
 ## How to Run
 
-### Start the Consumer
-The consumer listens for messages on the queue and processes them.
-```bash
-node consumer.js
-```
+### Basic (Direct) Implementation
+1. **Start Consumers**:
+   ```bash
+   node subscribedUserConsumer.js
+   node regularUserConsumer.js
+   ```
+2. **Run Producer**:
+   ```bash
+   node producer.js
+   ```
 
-### Run the Producer
-The producer sends a message to the exchange, which is then routed to the queue.
-```bash
-node producer.js
-```
+### Topic Exchange Implementation
+Located in the `/topic` directory. This implementation uses wildcard routing.
+
+1. **Start Consumers**:
+   ```bash
+   node topic/orderConsumer.js
+   node topic/paymentConsumer.js
+   ```
+2. **Run Producer**:
+   ```bash
+   node topic/producer.js
+   ```
 
 ## Key Considerations
 
+-   **Topic Patterns**: 
+    - `*` (star) matches exactly one word.
+    - `#` (hash) matches zero or more words.
+    - In this project, `order.*` matches `order.placed`, and `payment.*` matches `payment.made`.
 -   **Durability**: Both the exchange and the queue are set to `{ durable: true }`. This ensures they persist even if the RabbitMQ server restarts.
--   **Namespaces**: If you encounter `PRECONDITION-FAILED` errors, it likely means an exchange/queue with the same name already exists but with different settings (e.g., non-durable). In such cases, delete the existing entity via the Management UI or rename it in your code.
--   **Error Handling**: The project includes basic try-catch blocks and uses the `dotenv` library for secure configuration management.
+-   **Binding Logic**: In the topic implementation, both the producer and consumers handle infrastructure setup and bindings to ensure consistency.
 
 ## Project Structure
 
--   `producer.js`: Connects to RabbitMQ, asserts an exchange and queue, and publishes a message.
--   `consumer.js`: Connects to RabbitMQ, asserts the same queue, and consumes messages.
--   `.env`: Stores configuration details like the RabbitMQ URL and exchange names.
+-   `producer.js`: Basic producer for direct exchange.
+-   `topic/`:
+    - `connection.js`: Centralized RabbitMQ connection and setup logic.
+    - `producer.js`: Topic-based producer.
+    - `orderConsumer.js`: Listens for `order.*` events.
+    - `paymentConsumer.js`: Listens for `payment.*` events.
+-   `.env`: Stores configuration details.
+
